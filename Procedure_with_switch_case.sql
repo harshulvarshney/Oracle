@@ -5,7 +5,7 @@ Offers:
 	How to write switch-case in Oracle.
 */
 
-create or replace PROCEDURE BROKER_PREMIUM_KPI(
+create or replace PROCEDURE SAMPLE_PROCEDURE(
 	p_broker_identifier        IN VARCHAR,--unique identifier for broker
 	p_broker_organization_id   OUT NUMBER,
 	p_medical_premium          OUT FLOAT,--total premium for medical plan
@@ -30,11 +30,11 @@ AS
   IS
   RECORD
   (
-    PRODUCT_CATEGORY        MEMBER_PLAN_HISTORY.PRODUCT_CATEGORY%type,
-    EMPLOYEE_PREMIUM        MEMBER_PLAN_HISTORY.EMPLOYEE_PREMIUM%type,
-    EMPLOYER_PREMIUM        MEMBER_PLAN_HISTORY.EMPLOYER_PREMIUM%type,
-    START_DATE              MEMBER_PLAN_HISTORY.START_DATE%type,
-    END_DATE                MEMBER_PLAN_HISTORY.END_DATE%type
+    PRODUCT_CATEGORY        TABLE1.PRODUCT_CATEGORY%type,
+    EMPLOYEE_PREMIUM        TABLE1.EMPLOYEE_PREMIUM%type,
+    EMPLOYER_PREMIUM        TABLE1.EMPLOYER_PREMIUM%type,
+    START_DATE              TABLE1.START_DATE%type,
+    END_DATE                TABLE1.END_DATE%type
   );
 
   MPH_REC                   MPH_REC_TYPE;
@@ -72,22 +72,22 @@ BEGIN
 					 trunc(EPI.END_DATE) as end_date,
 					 ep.plan_identifier as plan_identifier,
 					 ep.IS_BASIC_ANCILLARY_PLAN
-			  FROM   ENROLLMENT_SETUP ES
-					 JOIN ENROLLMENT E
+			  FROM   TABLE2 ES
+					 JOIN TABLE3 E
 					   ON ES.ENROLLMENT_SETUP_IDENTIFIER = E.ENROLLMENT_SETUP_ID
-					 JOIN APPLICANT A
+					 JOIN TABLE4 A
 					   ON E.ID = A.ENROLLMENT_ID
-					 JOIN COVERAGE_PLAN_APPLICANT CPA
+					 JOIN TABLE5 CPA
 					   ON A.ID = CPA.APPLICANT_ID
-					 JOIN ENROLLMENT_PLAN_INFO EPI
+					 JOIN TABLE6 EPI
 					   ON CPA.ENROLLMENT_PLAN_INFO_ID = EPI.ID
-					 join ENROLLMENT_PLAN EP
+					 join TABLE7 EP
 					  on ep.id = cpa.plan_id
-					 JOIN APPLICANT_TYPE AT
+					 JOIN TABLE8 AT
 					   ON A.APPLICANT_TYPE_ID = AT.ID
-					 JOIN STATUS_TYPE ST
+					 JOIN TABLE9 ST
 					   ON ST.ID = E.STATUS_TYPE_ID
-					 JOIN STATUS_TYPE_PLAN STP
+					 JOIN TABLE10 STP
 					   ON STP.ID = EPI.STATUS_TYPE_ID
 			  WHERE  ES.CREATOR_USER_ID = p_broker_identifier
 			         AND ES.STATUS IN (2,6,12,13,14,15,16,19,21)
@@ -120,9 +120,9 @@ BEGIN
 				   trunc(START_DATE),
 				   trunc(END_DATE)
 			INTO MPH_REC
-			FROM MEMBER_PLAN_HISTORY
+			FROM TABLE1
 			WHERE MEMBER_INFO_HISTORY_ID = (SELECT ID
-											FROM   MEMBER_INFO_HISTORY
+											FROM   TABLE11
 											WHERE  ENROLLMENT_IDENTIFIER = i.ENROLLMENT_IDENTIFIER
 											AND MEMBER_IDENTIFIER = i.APPLICANT_IDENTIFIER)
 				  AND UPPER(PRODUCT_CATEGORY) = i.PRODUCT_CATEGORY
@@ -189,4 +189,4 @@ BEGIN
 
 	END LOOP;
  --dbms_output.put_line((dbms_utility.get_time() - timestart)/100 || 'seconds' || ' and ' || loop_count || ' times loop ran');
-END BROKER_PREMIUM_KPI;
+END SAMPLE_PROCEDURE;
